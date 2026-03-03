@@ -55,12 +55,13 @@ type result struct {
 }
 
 type playbookOptions struct {
-	filepath string
-	args     []string
-	labels   []string
+	filepath      string
+	args          []string
+	labels        []string
+	excludeLabels []string
 }
 
-func checkPlaybookOptions(dingoadm *cli.DingoAdm, options playbookOptions) error {
+func checkPlaybookOptions(options playbookOptions) error {
 	// TODO: added error code
 	if !utils.PathExist(options.filepath) {
 		return fmt.Errorf("%s: no such file", options.filepath)
@@ -89,7 +90,7 @@ func NewPlaybookCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 			}
 			options.filepath = args[0]
 			options.args = args[1:]
-			return checkPlaybookOptions(dingoadm, options)
+			return checkPlaybookOptions(options)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runPlaybook(dingoadm, options)
@@ -99,6 +100,7 @@ func NewPlaybookCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 
 	flags := cmd.Flags()
 	flags.StringSliceVarP(&options.labels, "labels", "l", []string{}, "Specify the host labels")
+	flags.StringSliceVarP(&options.excludeLabels, "exclude-labels", "e", []string{}, "Specify the host labels to exclude")
 
 	return cmd
 }
@@ -164,7 +166,12 @@ func runPlaybook(dingoadm *cli.DingoAdm, options playbookOptions) error {
 	var err error
 	hosts := dingoadm.Hosts()
 	if len(hosts) > 0 {
-		hcs, err = filter(hosts, options.labels) // filter hosts
+		// filter hosts by labels
+		if len(options.excludeLabels) == 0 {
+			hcs, err = filter(hosts, options.labels) // filter hosts
+		} else {
+			hcs, err = filterExcludeLabels(hosts, options.excludeLabels) // filter hosts
+		}
 		if err != nil {
 			return err
 		}

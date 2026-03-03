@@ -83,6 +83,9 @@ func (hc *HostConfig) convertLables() error {
 			F("hosts[%d].%s = %v", hc.sequence, KEY_LABELS, value)
 	}
 
+	// init hc label with hostname
+	hc.labels = append(hc.labels, hc.GetHost())
+
 	for _, value := range slice {
 		if v, ok := utils.All2Str(value); !ok {
 			return errno.ERR_CONFIGURE_VALUE_REQUIRES_STRING_SLICE.

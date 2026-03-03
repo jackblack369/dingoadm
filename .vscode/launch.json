@@ -5,6 +5,26 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "dingoadm hosts commit",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {
+                "CGO_ENABLED": "1",
+                "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}",
+                "dingo_cluster": "mdsv2"
+            },
+            "args": [
+                "hosts",
+                "commit",
+                "-f",
+                "/home/dongwei/deploy/hosts-origin.yaml"
+            ],
+            "showLog": true,
+            //"preLaunchTask": "enable-gcc-toolset"
+        },
+        {
             "name": "dingoadm deploy dingofs",
             "type": "go",
             "request": "launch",
@@ -422,9 +442,9 @@
             },
             "args": [
                 "playbook",
-                "/home/dongwei/code/any.sh",
+                "df -h /",
                 "-l",
-                "host1,host2",
+                "dingo-dongwei-1,dingo-dongwei-2",
             ],
             "showLog": true,
         },

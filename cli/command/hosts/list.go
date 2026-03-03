@@ -157,6 +157,29 @@ func filter(data string, labels []string) ([]*hosts.HostConfig, error) {
 	return out, nil
 }
 
+func filterExcludeLabels(data string, excludeLabels []string) ([]*hosts.HostConfig, error) {
+	hcs, err := hosts.ParseHosts(data)
+	if err != nil {
+		return nil, err
+	}
+	if len(excludeLabels) == 0 {
+		return hcs, nil
+	}
+
+	out := []*hosts.HostConfig{}
+	exclude := map[string]bool{}
+	for _, label := range excludeLabels {
+		exclude[label] = true
+	}
+	for _, hc := range hcs {
+		if excludeOne(hc, exclude) {
+			continue
+		}
+		out = append(out, hc)
+	}
+	return out, nil
+}
+
 func runList(dingoadm *cli.DingoAdm, options listOptions) error {
 	var hcs []*hosts.HostConfig
 	var err error
